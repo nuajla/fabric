@@ -17,7 +17,7 @@ ENV PATH=/opt/conda/bin:$PATH
 
 # Create conda environment with Python 3.6 
 RUN conda create -y -n py3-cloth python=3.6
-ENV PATH=/opt/conda/envs/py3-clot/bin:$PATH
+ENV PATH=/opt/conda/envs/py3-cloth/bin:$PATH
 
 # Make conda environment active for every RUN command during image building
 SHELL ["conda", "run", "-n", "py3-cloth", "/bin/bash", "-c"]
@@ -28,6 +28,8 @@ RUN wget https://download.blender.org/release/Blender2.79/blender-2.79b-linux-gl
     tar -xvjf blender-2.79b-linux-glibc219-x86_64.tar.bz2 && \
     rm blender-2.79b-linux-glibc219-x86_64.tar.bz2
 ENV PATH="/opt/blender-2.79b-linux-glibc219-x86_64:${PATH}"
+
+COPY ./workspace /workspace
 
 # Clone gym-cloth repository
 WORKDIR /workspace
@@ -52,11 +54,18 @@ RUN mkdir build && \
     cmake .. && \
     make -j4 install
 
+#  Fix for header-only cppzmq library (remove invalid link line)
+RUN sed -i '/cppzmq/d' /workspace/gym-cloth/render/src/CMakeLists.txt
+
 WORKDIR /workspace/gym-cloth/render
 RUN mkdir build && \
     cd build && \
     cmake .. && \
     make -j4
+
+# Build extensions in place to ensure physics module is found
+WORKDIR /workspace/gym-cloth
+RUN python setup.py build_ext --inplace
 
 WORKDIR /workspace/gym-cloth
 RUN python setup.py install
@@ -66,6 +75,10 @@ WORKDIR /workspace
 RUN git clone https://github.com/DanielTakeshi/baselines-fork.git
 WORKDIR /workspace/baselines-fork
 RUN pip install -e .
+
+# Fix joblib version compatibility
+RUN pip uninstall -y joblib && \
+    pip install joblib==1.1.1
 
 # Install TensorFlow GPU to conda environment
 RUN pip install tensorflow-gpu==1.13.1
@@ -80,4 +93,5 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/local/cuda-10.0/compat:$LD_LIBRARY_PATH
 ENV CONDA_DEFAULT_ENV=py3-cloth
 
 # Default command
-CMD ["conda", "run", "--no-capture-output", "-n", "py3-cloth", "bash"]
+CMD ["bash"]
+# CMD ["conda", "run", "-n", "py3-cloth", "--no-capture-output", "bash"]
