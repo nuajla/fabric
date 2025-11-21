@@ -1,0 +1,30 @@
+services:
+  fabric:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gym_cloth
+    container_name: fabric
+    volumes:
+        # - ./app:/home/app
+        # - ./app/outputs:/home/app/outputs
+        # - ./data:/home/data
+
+        # Volumes, shared for display forwarding
+        - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+        - /tmp/.X11-unix:/tmp/.X11-unix  # for using local xserver
+    working_dir: /workspace
+    command: bash
+    environment:
+      TZ: "Europe/Ljubljana"
+      DISPLAY: $DISPLAY
+    shm_size: 16gb
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    privileged: true
+    tty: true
