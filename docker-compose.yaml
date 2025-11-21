@@ -6,6 +6,7 @@ services:
     image: gym_cloth
     container_name: fabric
     volumes:
+        - ./workspace:/workspace
         # - ./app:/home/app
         # - ./app/outputs:/home/app/outputs
         # - ./data:/home/data

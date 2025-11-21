@@ -29,7 +29,7 @@ RUN wget https://download.blender.org/release/Blender2.79/blender-2.79b-linux-gl
     rm blender-2.79b-linux-glibc219-x86_64.tar.bz2
 ENV PATH="/opt/blender-2.79b-linux-glibc219-x86_64:${PATH}"
 
-COPY ./workspace /workspace
+# COPY ./workspace /workspace
 
 # Clone gym-cloth repository
 WORKDIR /workspace
