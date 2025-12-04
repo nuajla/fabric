@@ -33,13 +33,21 @@ ENV PATH="/opt/blender-2.79b-linux-glibc219-x86_64:${PATH}"
 
 # Clone gym-cloth repository
 WORKDIR /workspace
-RUN git clone https://github.com/DanielTakeshi/gym-cloth.git
+RUN git clone https://github.com/nuajla/gym-cloth.git
 WORKDIR /workspace/gym-cloth
+
 
 # Upgrade pip and install dependencies
 RUN pip install --upgrade pip setuptools wheel && \
     pip install -r requirements.txt && \
     pip install numpy scipy matplotlib opencv-python imageio tqdm gym pyopengl glfw cython
+
+
+# Clone dvrk-python repository
+WORKDIR /workspace
+RUN git clone https://github.com/nuajla/dvrk-python.git
+WORKDIR /workspace/dvrk-python
+
 
 # Build the renderer
 WORKDIR /workspace/gym-cloth/render/ext/libzmq
@@ -72,7 +80,7 @@ RUN python setup.py install
 
 # Clone and install baselines-fork repository
 WORKDIR /workspace
-RUN git clone https://github.com/DanielTakeshi/baselines-fork.git
+RUN git clone https://github.com/nuajla/baselines-fork.git
 WORKDIR /workspace/baselines-fork
 RUN pip install -e .
 
